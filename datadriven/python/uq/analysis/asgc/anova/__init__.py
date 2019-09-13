@@ -11,5 +11,4 @@ __all__ = []
 __author__ = "Fabian Franzelin, fabian.franzelin@ipvs.uni-stuttgart.de"
 
 
-from hdmr import HDMR
-from pysgpp.extensions.datadriven.uq.analysis.asgc.anova.hdmrAnalytic import HDMRAnalytic
+from .hdmrAnalytic import HDMRAnalytic

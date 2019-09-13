@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pylab as plt
 import matplotlib.cm as cm
 from matplotlib.patches import Rectangle
-from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 
 from pysgpp import DataVector, DataMatrix
 from pysgpp.extensions.datadriven.uq.operations import evalSGFunction
@@ -166,7 +166,8 @@ def plotSGDE2d(U, n=100):
     # plot negative areas
     if len(neg_z) > 0:
         plt.plot(neg_x, neg_y, linestyle=' ', marker='o', color='red')
-        plt.title("N=%i, [%g, %g]" % (U.grid.getSize(), min(neg_z), max(neg_z)))
+        plt.title("N=%i, [%g, %g]" %
+                  (U.grid.getSize(), min(neg_z), max(neg_z)))
     else:
         plt.title("N=%i" % U.grid.getSize())
 
@@ -313,10 +314,13 @@ def plotGrid2d(grid, alpha=None, show_numbers=True,
 
     # plot the grid points
     if alpha is None:
-        plt.plot(gps['a'][:, 0], gps['a'][:, 1], "o ", color='black', *args, **kws)
+        plt.plot(gps['a'][:, 0], gps['a'][:, 1],
+                 "o ", color='black', *args, **kws)
     else:
-        plt.plot(gps['p'][:, 0], gps['p'][:, 1], "^ ", color='blue', *args, **kws)
-        plt.plot(gps['n'][:, 0], gps['n'][:, 1], "v ", color='red', *args, **kws)
+        plt.plot(gps['p'][:, 0], gps['p'][:, 1],
+                 "^ ", color='blue', *args, **kws)
+        plt.plot(gps['n'][:, 0], gps['n'][:, 1],
+                 "v ", color='red', *args, **kws)
     plt.xlim(xlim[0], xlim[1])
     plt.ylim(ylim[0], ylim[1])
 
@@ -345,6 +349,7 @@ def plotScatter2d(samples, values, bounds=None,
 
     xs = np.linspace(x_min, x_max, 100)
     ys = np.linspace(y_min, y_max, 100)
+
     # grid the data.
     zs = griddata(samples[:, 0],
                   samples[:, 1],
