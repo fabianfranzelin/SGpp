@@ -62,15 +62,16 @@ void ModelFittingDensityEstimationCG::fit(DataMatrix& newDataset) {
 
   // Setup new grid
   auto& gridConfig = this->config->getGridConfig();
+  auto& geometryConfig = this->config->getGeometryConfig();
   gridConfig.dim_ = newDataset.getNcols();
   // TODO(fuchsgruber): Support for geometry aware sparse grids (pass interactions from config?)
-  grid = std::unique_ptr<Grid>{buildGrid(gridConfig)};
+  grid = std::unique_ptr<Grid>{buildGrid(gridConfig, geometryConfig)};
   // build surplus vector
-  alpha = DataVector{grid->getSize()};
+  alpha = DataVector(grid->getSize());
 
   // Initialize the right hand side (numerator and denominator)
-  bNum = DataVector{grid->getSize()};
-  bDenom = DataVector{grid->getSize()};
+  bNum = DataVector(grid->getSize());
+  bDenom = DataVector(grid->getSize());
   bNum.setAll(0.0);
   bDenom.setAll(0.0);
 
@@ -138,8 +139,8 @@ void ModelFittingDensityEstimationCG::update(DataMatrix& newDataset) {
     double numInstances = static_cast<double>(newDataset.getNrows());
     // Rescale the rhs such that it is not normalized by the number of instances
     rhsUpdate.mult(static_cast<double>(numInstances));
-    // Weigh the current right hand side with beta (decay)
-    bNum.mult(this->config->getLearnerConfig().beta);
+    // Weigh the current right hand side with learningRate (decay)
+    bNum.mult(this->config->getLearnerConfig().learningRate);
 
     bNum.add(rhsUpdate);
     // Update the denominator (dataset size) as well
