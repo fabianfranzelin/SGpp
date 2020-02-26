@@ -83,7 +83,7 @@ class UQSettingFormatter(GzipSerializer):
         Return None
         """
         # text = json_manual.JsonWriter().write(memento)
-        text = json.dumps(memento, indent=None)
+        text = json.dumps(memento, indent=4, sort_keys=True)
         serializationStream.write(text.encode('utf-8'))
 
     def serializeToFile(self, memento, filename):
