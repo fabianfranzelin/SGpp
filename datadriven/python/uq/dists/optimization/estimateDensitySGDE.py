@@ -129,7 +129,7 @@ printSurfaceFile = %s
         grid.getGenerator().regular(level)
 
         if grid.getSize() <= n:
-            print(( " l=%i" % level, ))
+            print(" l=%i" % level, )
             fd = open(gridFile, "w")
             fd.write(grid.serialize())
             fd.close()
@@ -165,13 +165,16 @@ printSurfaceFile = %s
                 crossEntropy = sgdeDist.crossEntropy(testSamplesUnit)
 
                 if dist is not None:
-                    l2error = dist.l2error(sgdeDist, testSamplesUnit, testSamplesProb)
-                    kldivergence = dist.klDivergence(sgdeDist, testSamplesUnit, testSamplesProb)
+                    l2error = dist.l2error(
+                        sgdeDist, testSamplesUnit, testSamplesProb)
+                    kldivergence = dist.klDivergence(
+                        sgdeDist, testSamplesUnit, testSamplesProb)
 
                 fig = plt.figure()
                 plotSG2d(grid, alpha)
                 plt.title("N=%i: vol=%g, kl=%g, log=%g, l2error=%g" % (grid.getSize(),
-                                                                       doQuadrature(grid, alpha),
+                                                                       doQuadrature(
+                                                                           grid, alpha),
                                                                        kldivergence,
                                                                        crossEntropy,
                                                                        l2error))
@@ -221,8 +224,10 @@ printSurfaceFile = %s
             crossEntropy = sgdeDist.crossEntropy(testSamplesUnit)
 
             if dist is not None:
-                l2error = dist.l2error(sgdeDist, testSamplesUnit, testSamplesProb)
-                kldivergence = dist.klDivergence(sgdeDist, testSamplesUnit, testSamplesProb)
+                l2error = dist.l2error(
+                    sgdeDist, testSamplesUnit, testSamplesProb)
+                kldivergence = dist.klDivergence(
+                    sgdeDist, testSamplesUnit, testSamplesProb)
 
             accL2error = np.append(accL2error, l2error)
             accCrossEntropy = np.append(accCrossEntropy, crossEntropy)
@@ -233,7 +238,8 @@ printSurfaceFile = %s
                 fig = plt.figure()
                 plotSG2d(grid, alpha)
                 plt.title("N=%i: vol=%g, kl=%g, log=%g, l2error=%g" % (grid.getSize(),
-                                                                       doQuadrature(grid, alpha),
+                                                                       doQuadrature(
+                                                                           grid, alpha),
                                                                        kldivergence,
                                                                        crossEntropy,
                                                                        l2error))
@@ -248,7 +254,8 @@ printSurfaceFile = %s
             elif optimization == 'l2':
                 measure = l2error
             else:
-                raise AttributeError('optimization "%s" is not known for density estimation' % optimization)
+                raise AttributeError(
+                    'optimization "%s" is not known for density estimation' % optimization)
 
             isBest = measure < bestMeasure
             if isBest:
@@ -284,8 +291,8 @@ printSurfaceFile = %s
 
                 writeAlphaARFF(alphaFileNew, ans.alpha)
                 # -----------------------------------------------------------
-            print( ": %s = %g <= %g" % (optimization, measure, bestMeasure) )
-    print( )
+            print(": %s = %g <= %g" % (optimization, measure, bestMeasure))
+    print()
     # -----------------------------------------------------------
     # write results to file
     statsfilename = os.path.join(pathResults,

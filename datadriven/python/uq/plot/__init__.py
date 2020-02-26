@@ -5,8 +5,7 @@ plot package
 """
 __version__ = "0.1"
 
-__all__ = ["plotSGDE3d", "plotSGDE2d",
-           "plotGrid"]
+__all__ = []
 
 __author__ = "Fabian Franzelin, fabian.franzelin@ipvs.uni-stuttgart.de"
 

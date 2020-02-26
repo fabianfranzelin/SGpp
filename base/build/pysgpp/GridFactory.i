@@ -248,6 +248,6 @@ public:
       gps = [None] * gs.getSize()
       for i in range(gs.getSize()):
         gps[i] = gs.getPoint(i).getHash()
-      return hashlib.sha512(str(gps)).hexdigest()
+        return hashlib.sha512(str(gps).encode('utf-8')).hexdigest()
     %}
 }

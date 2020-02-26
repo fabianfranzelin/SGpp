@@ -244,11 +244,11 @@ def readData(filename):
         else:
             data = readDataTrivial(filename)
     except Exception as e:
-        print ("An error occured while reading " + filename + "!")
+        print("An error occured while reading " + filename + "!")
         raise e
 
     if ("classes" in data) == False:
-        print ("No classes found in the given File " + filename + "!")
+        print("No classes found in the given File " + filename + "!")
         sys.exit(1)
 
     return data
@@ -411,7 +411,7 @@ def readAlphaARFF(filename):
     try:
         data = readDataARFF(filename)
     except:
-        print ("An error occured while reading " + filename + "!")
+        print("An error occured while reading " + filename + "!")
         sys.exit(1)
 
     dv = DataVector(data["data"].getNrows())
@@ -430,7 +430,7 @@ def readAlphaTrivial(filename, delim=None):
     try:
         data = readDataTrivial(filename, delim, hasclass=False)
     except:
-        print ("An error occured while reading " + filename + "!")
+        print("An error occured while reading " + filename + "!")
         sys.exit(1)
 
     dv = DataVector(data["data"].getNrows())
@@ -451,7 +451,7 @@ def readAlpha(filename):
         else:
             data = readAlphaTrivial(filename)
     except Exception as e:
-        print ("An error occured while reading " + filename + "!")
+        print("An error occured while reading " + filename + "!")
         raise e
 
     return data
@@ -577,10 +577,10 @@ def makedir(path, verbose=False):
     if not os.path.isdir(path):
         os.makedirs(path)
         if verbose:
-            print ("Created directory %s." % (s))
+            print("Created directory %s." % (s))
     else:
         if verbose:
-            print ("Nothing done. Directory %s already existing." % (s))
+            print("Nothing done. Directory %s already existing." % (s))
 # @brief write ARFF data
 #
 # @param data data to write
@@ -656,7 +656,7 @@ def writeDataARFF(data, merge=False):
 #        should be joined
 def writeDataMaple(data, merge):
     if merge == True:
-        print ("Ignoring merge. Not implemented yet!")
+        print("Ignoring merge. Not implemented yet!")
 
     if len(data) == 0:
         return
@@ -745,7 +745,7 @@ def readNormfile(filename):
         minvals = [float(l) for l in (data[1].strip()).split(None)[1:]]
         maxvals = [float(l) for l in (data[2].strip()).split(None)[1:]]
         deltavals = list(map(lambda x, y: (
-            (y-x) /(1.0-2.0*border)), minvals, maxvals))
+            (y-x) / (1.0-2.0*border)), minvals, maxvals))
     except:
         raise Exception("ERROR: Unable to read \"%s\"\n" % (filename))
     return (border, minvals, maxvals, deltavals)
@@ -763,11 +763,11 @@ def readNormfile(filename):
 def normalize(data, border=0.0, filename=None, minvals=None, maxvals=None, verbose=False):
     # check parameters
     if len(data) == 0:
-        raise ValueError( "Wrong or no data." )
+        raise ValueError("Wrong or no data.")
     if minvals and maxvals:
         if (len(minvals) != data[0]["data"].getNcols() or
                 len(maxvals) != data[0]["data"].getNcols()):
-            raise ValueError( "Wrong number of min- or max-values." )
+            raise ValueError("Wrong number of min- or max-values.")
         lmin = minvals
         lmax = maxvals
     else:
@@ -787,10 +787,10 @@ def normalize(data, border=0.0, filename=None, minvals=None, maxvals=None, verbo
                 lmax[dim] = max(cmax, lmax[dim])
     # output
     if verbose:
-        print(("Dim:", len(lmin)))
-        print(("Boundary:", border))
+        print("Dim:", len(lmin))
+        print("Boundary:", border)
         for d in range(len(lmin)):
-            print (" [%f,%f]" % (lmin[d], lmax[d]))
+            print(" [%f,%f]" % (lmin[d], lmax[d]))
 
     # delta values
     ldelta = list(map(lambda x, y: ((y-x) / (1.0-2.0*border)), lmin, lmax))
@@ -798,7 +798,7 @@ def normalize(data, border=0.0, filename=None, minvals=None, maxvals=None, verbo
     # write normalization data to file:
     if filename:
         if verbose:
-            print(("Writing normalization information to", filename))
+            print("Writing normalization information to", filename)
         writeNormfile(filename, border, lmin, lmax)
 
     for dataset in data:

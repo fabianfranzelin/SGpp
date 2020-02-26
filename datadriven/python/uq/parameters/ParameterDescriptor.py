@@ -1,7 +1,7 @@
 import numpy as np
 
 from pysgpp.extensions.datadriven.uq.dists import (Dist, Uniform, Normal, TNormal, SGDEdist,
-                          Lognormal, Beta, MultivariateNormal, TLognormal)
+                                                   Lognormal, Beta, MultivariateNormal, TLognormal)
 from pysgpp.extensions.datadriven.uq.transformation import (LinearTransformation,
                                                             RosenblattTransformation)
 
@@ -10,12 +10,15 @@ from pysgpp.extensions.datadriven.uq.parameters.UncertainParameter import Uncert
 from pysgpp.extensions.datadriven.uq.transformation.JointTransformation import JointTransformation
 from pysgpp.extensions.datadriven.uq.dists.DataDist import DataDist
 from pysgpp.extensions.datadriven.uq.sampler.Sample import DistributionType
-from pysgpp.pysgpp_swig import OrthogonalPolynomialBasis1DConfiguration, \
-    OrthogonalPolynomialBasisType_HERMITE, \
-    OrthogonalPolynomialBasisType_JACOBI, \
-    OrthogonalPolynomialBasisType_LEGENDRE, \
-    OrthogonalPolynomialBasisType_BOUNDED_LOGNORMAL, \
-    OrthogonalPolynomialBasis1D
+try:
+    from pysgpp.pysgpp_swig import OrthogonalPolynomialBasis1DConfiguration, \
+        OrthogonalPolynomialBasisType_HERMITE, \
+        OrthogonalPolynomialBasisType_JACOBI, \
+        OrthogonalPolynomialBasisType_LEGENDRE, \
+        OrthogonalPolynomialBasisType_BOUNDED_LOGNORMAL, \
+        OrthogonalPolynomialBasis1D
+except Exception as _:
+    pass
 
 
 class ParameterDescriptor(object):
@@ -123,7 +126,8 @@ class UncertainParameterDesciptor(ParameterDescriptor):
         if self._dist is not None:
             self.__trans = RosenblattTransformation(self._dist)
         else:
-            raise AttributeError('the distribution of "%s" is not specified yet but it is needed to know to apply the Rosenblatt transformation' % self.__name)
+            raise AttributeError(
+                'the distribution of "%s" is not specified yet but it is needed to know to apply the Rosenblatt transformation' % self.__name)
         return self
 
     def withTransformation(self, trans):
@@ -132,7 +136,8 @@ class UncertainParameterDesciptor(ParameterDescriptor):
 
     def andGetResult(self):
         if self._dist is None:
-            raise Exception("No distribution specified for parameter '%s'" % self._name)
+            raise Exception(
+                "No distribution specified for parameter '%s'" % self._name)
         # if there is no transformation defined, use the
         # linear transformation as standard
         if self.__trans is None:
@@ -147,7 +152,8 @@ class UncertainParameterDesciptor(ParameterDescriptor):
 
         # check if there are enough identifiers given
         if self._dist.getDim() > 1 and self._dist.getDim() != len(self._name):
-            raise AttributeError("not enough names provided; given %i (%s), expected %i" % (len(self._name), ", ".join(self._name), self._dist.getDim()))
+            raise AttributeError("not enough names provided; given %i (%s), expected %i" % (
+                len(self._name), ", ".join(self._name), self._dist.getDim()))
 
         # check if there is and SGDE involved that need this
         # transformation
@@ -155,30 +161,39 @@ class UncertainParameterDesciptor(ParameterDescriptor):
             self._dist.transformation = self.__trans
 
         # check wiener askey scheme
-        partOfWienerAskeyScheme = False
-        orthogPolyConfig = OrthogonalPolynomialBasis1DConfiguration()
-        if isinstance(self.__trans, RosenblattTransformation) or \
-                isinstance(self._dist, Uniform):
-            orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_LEGENDRE
-            orthogPolyConfig.polyParameters.lowerBound_ = self._dist.getBounds()[0]
-            orthogPolyConfig.polyParameters.upperBound_ = self._dist.getBounds()[1]
-            orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
-        elif isinstance(self._dist, Normal):
-            orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_HERMITE
-            orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
-        elif isinstance(self._dist, Beta):
-            orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_JACOBI
-            orthogPolyConfig.polyParameters.alpha_ = self._dist.alpha()
-            orthogPolyConfig.polyParameters.beta_ = self._dist.beta()
-            orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
-        elif isinstance(self._dist, TLognormal):
-            orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_BOUNDED_LOGNORMAL
-            orthogPolyConfig.polyParameters.logmean_ = np.log(self._dist.mu)
-            orthogPolyConfig.polyParameters.stddev_ = self._dist.sigma
-            orthogPolyConfig.polyParameters.lowerBound_ = self._dist.getBounds()[0]
-            orthogPolyConfig.polyParameters.upperBound_ = self._dist.getBounds()[1]
-            orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
-        else:
+        try:
+            orthogPolyConfig = OrthogonalPolynomialBasis1DConfiguration()
+            if isinstance(self.__trans, RosenblattTransformation) or \
+                    isinstance(self._dist, Uniform):
+                orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_LEGENDRE
+                orthogPolyConfig.polyParameters.lowerBound_ = self._dist.getBounds()[
+                    0]
+                orthogPolyConfig.polyParameters.upperBound_ = self._dist.getBounds()[
+                    1]
+                orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
+            elif isinstance(self._dist, Normal):
+                orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_HERMITE
+                orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
+            elif isinstance(self._dist, Beta):
+                orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_JACOBI
+                orthogPolyConfig.polyParameters.alpha_ = self._dist.alpha()
+                orthogPolyConfig.polyParameters.beta_ = self._dist.beta()
+                orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
+            elif isinstance(self._dist, TLognormal):
+                orthogPolyConfig.polyParameters.type_ = OrthogonalPolynomialBasisType_BOUNDED_LOGNORMAL
+                orthogPolyConfig.polyParameters.logmean_ = np.log(
+                    self._dist.mu)
+                orthogPolyConfig.polyParameters.stddev_ = self._dist.sigma
+                orthogPolyConfig.polyParameters.lowerBound_ = self._dist.getBounds()[
+                    0]
+                orthogPolyConfig.polyParameters.upperBound_ = self._dist.getBounds()[
+                    1]
+                orthogPoly = OrthogonalPolynomialBasis1D(orthogPolyConfig)
+            else:
+                orthogPoly = None
+        except Exception as _:
+            orthogPoly = None
+        finally:
             orthogPoly = None
 
         return UncertainParameter(self._name, self._dist,

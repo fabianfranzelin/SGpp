@@ -34,12 +34,11 @@ from pysgpp.extensions.datadriven.uq.learner.Interpolant import Interpolant
 from pysgpp import createOperationMultipleEval
 
 from pysgpp.extensions.datadriven.uq.learner.builder.GridDescriptor import GridDescriptor
-from pysgpp.extensions.datadriven.uq.learner.builder.RegressorSpecificationDescriptor import RegressorSpecificationDescriptor
 import pysgpp.extensions.datadriven.utils.json as json
 from pysgpp.extensions.datadriven.uq.learner.builder import InterpolantSpecificationDescriptor
 
 
-## Implement mechanisms to create customized learning system
+# Implement mechanisms to create customized learning system
 #
 # @section Examples Usage examples
 #
@@ -59,7 +58,7 @@ from pysgpp.extensions.datadriven.uq.learner.builder import InterpolantSpecifica
 # where you can set all parameters associated with some category. For example to
 # define the grid parameters you switch the builder into GridDescriptor set with
 # @code
-#builder = builder.withGrid()...
+# builder = builder.withGrid()...
 # @endcode
 # and then defines corresponding parameters:
 # @code
@@ -67,12 +66,12 @@ from pysgpp.extensions.datadriven.uq.learner.builder import InterpolantSpecifica
 # @endcode
 # Builder can automatically switches to the next state
 # @code
-#builder.withGrid()...withCGSolver().withAccuracy(0.00000001)...
+# builder.withGrid()...withCGSolver().withAccuracy(0.00000001)...
 # @endcode
 # After all parameters are set you can return the constructed learning system
 # with
 # @code
-#builder.andGetResult()
+# builder.andGetResult()
 # @endcode
 #
 # The complete construction could look like following:
@@ -140,5 +139,6 @@ class LearnerBuilder(object):
         should be called in the and of construction
         """
         if self._learner is None:
-            raise AttributeError('Learner is not specified -> use buildInterpolant')
+            raise AttributeError(
+                'Learner is not specified -> use buildInterpolant')
         return self._learner

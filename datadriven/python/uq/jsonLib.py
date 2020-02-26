@@ -22,7 +22,7 @@ def reprVal(attrValue):
     """
     if isinstance(attrValue, bool):
         return reprBool(attrValue)
-    elif isinstance(attrValue, int):
+    elif isinstance(attrValue, int) or isinstance(attrValue, np.int64):
         return reprInt(attrValue)
     elif isinstance(attrValue, dict):
         return reprDict(attrValue)
@@ -114,7 +114,7 @@ def parseAttribute(attrValue, attrName):
             s = reprVal(attrValue)
             return '%s: %s,\n' % (reprString(attrName), s)
         except AttributeError as e:
-            print( e )
+            print(e)
             return ''
     else:
         return ''

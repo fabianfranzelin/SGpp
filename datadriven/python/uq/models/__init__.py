@@ -1,1 +1,1 @@
-from pysgpp.extensions.datadriven.uq.models.testEnvironments import PCEBuilderHeat, TestEnvironmentSG
+from pysgpp.extensions.datadriven.uq.models.testEnvironments import TestEnvironmentSG

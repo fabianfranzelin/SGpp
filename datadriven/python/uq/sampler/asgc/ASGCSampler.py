@@ -70,7 +70,6 @@ class ASGCSampler(Sampler):
 
         return ps
 
-
     def refineGrid(self, knowledge, qoi="_", refinets=[0]):
         # load the time steps we use for refinement
         oldGridSize = self.__grid.getSize()
@@ -85,16 +84,16 @@ class ASGCSampler(Sampler):
 
         # print some information
         if self.__verbose:
-            print( "-" * 70 )
-            print( "iteration: %i" % self.__iteration )
-            print( "old grid size: %i" % oldGridSize )
-            print( "old AS size: %i" % oldAdmissibleSetSize )
-            print( "new collocation nodes: %i" % len(newCollocationNodes) )
-            print(( "new grid size:", self.__grid.getSize() ))
-            print( "new AS size: %i" % self.__refinementManager\
-                                          .getAdmissibleSet()\
-                                          .getSize())
-            print( "-" * 70 )
+            print("-" * 70)
+            print("iteration: %i" % self.__iteration)
+            print("old grid size: %i" % oldGridSize)
+            print("old AS size: %i" % oldAdmissibleSetSize)
+            print("new collocation nodes: %i" % len(newCollocationNodes))
+            print("new grid size:", self.__grid.getSize())
+            print("new AS size: %i" % self.__refinementManager
+                  .getAdmissibleSet()
+                  .getSize())
+            print("-" * 70)
 
 #         fig = plt.figure()
 #         plotGrid(self.__grid, knowledge.getAlpha(),
@@ -108,13 +107,15 @@ class ASGCSampler(Sampler):
         # parse them to a numpy array
         gs = self.__grid.getStorage()
         p = DataVector(gs.getDimension())
-        ans = np.ndarray([len(newCollocationNodes), gs.getDimension()], dtype='float')
+        ans = np.ndarray(
+            [len(newCollocationNodes), gs.getDimension()], dtype='float')
         for i, gp in enumerate(newCollocationNodes):
             gs.getCoordinates(gp, p)
             ans[i, :] = p.array()
 
         return ans
     # ------------------------------------------------------------------------
+
     def nextSamples(self, knowledge=None, qoi="_", refinets=[0]):
         """
         Generate the next samples with respect to the current knowledge

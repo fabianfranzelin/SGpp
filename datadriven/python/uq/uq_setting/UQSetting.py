@@ -63,8 +63,10 @@ class UQSetting(object):
         self._verbose = True
 
         # parallel stuff (taken from mc_berechnung)
-        self.parallelprocesses = sum([props['cores'] for props in list(remote.hosts.values())])
-        self.expectedsamplecount = 0  # set to expected number of samples, for parallellisation
+        self.parallelprocesses = sum([props['cores']
+                                      for props in list(remote.hosts.values())])
+        # set to expected number of samples, for parallellisation
+        self.expectedsamplecount = 0
         self.__filesuffix = 0  # incremented for each process
         self.children = {}  # running worker processes
         self.files = []  # result files written
@@ -93,26 +95,30 @@ class UQSetting(object):
             # DAMN IT => this is shit!!!!
             keys = list(stats.keys())
             if self._verbose:
-                print( "search for equivalent for %s" % (p,) )
+                print("search for equivalent for %s" % (p,))
             j = 0
             while not found and j < len(keys):
                 g = keys[j]
                 j += 1
-                diff1 = [(abs(gi - pi) / pi) for gi, pi in zip(g, p) if abs(pi) > 0]
-                diff2 = [(abs(gi - pi) / gi) for gi, pi in zip(g, p) if abs(gi) > 0]
+                diff1 = [(abs(gi - pi) / pi)
+                         for gi, pi in zip(g, p) if abs(pi) > 0]
+                diff2 = [(abs(gi - pi) / gi)
+                         for gi, pi in zip(g, p) if abs(gi) > 0]
                 diff = sum(diff1) + sum(diff2)
                 min_diff = min(min_diff, diff)
                 if diff < 1e-6:
                     found = True
                     old_q = self.__stats_preprocessor[g]
                     if self._verbose:
-                        print(( g, old_q ))
+                        print(g, old_q)
 
                     # save old items
                     q = self.getPreprocessor().unitToProbabilistic(x)
 
-                    diff1 = [(abs(gi - pi) / pi) for gi, pi in zip(q, old_q) if abs(pi) > 0]
-                    diff2 = [(abs(gi - pi) / gi) for gi, pi in zip(q, old_q) if abs(gi) > 0]
+                    diff1 = [(abs(gi - pi) / pi)
+                             for gi, pi in zip(q, old_q) if abs(pi) > 0]
+                    diff2 = [(abs(gi - pi) / gi)
+                             for gi, pi in zip(q, old_q) if abs(gi) > 0]
                     diff = sum(diff1) + sum(diff2)
 
                     simulation = self.__stats_simulation[old_q].copy()
@@ -135,15 +141,15 @@ class UQSetting(object):
 
             if self._verbose:
                 if found:
-                    print(( "found equivalent", ))
-                    print( min_diff )
-                    print(( len(self.__stats_samples), \
-                        len(self.__stats_preprocessor), \
-                        len(self.__stats_preprocessor_reverse), \
-                        len(self.__stats_simulation), \
-                        len(self.__stats_postprocessor)))
+                    print("found equivalent", )
+                    print(min_diff)
+                    print(len(self.__stats_samples),
+                          len(self.__stats_preprocessor),
+                          len(self.__stats_preprocessor_reverse),
+                          len(self.__stats_simulation),
+                          len(self.__stats_postprocessor))
                 else:
-                    print( "no equivalent found" )
+                    print("no equivalent found")
         return found
 
     def __preprocessing(self, sample, *args, **kws):
@@ -174,28 +180,28 @@ class UQSetting(object):
                                                          **kws)
 
                     if self._verbose:
-                        print(( "Apply pre-processing:", ))
+                        print("Apply pre-processing:", end=' ')
                 except:
                     raise
             else:
                 q = self.__stats_preprocessor[p]
 
                 if self._verbose:
-                    print(( "Restore pre-processing:", ))
+                    print("Restore pre-processing:", end=' ')
         else:
             q = x
 
             if self._verbose:
-                print(( "No pre-processor defined:", ))
+                print("No pre-processor defined:", end=' ')
 
         if self._verbose:
-            print( "%s -> %s -> %s -> %s" % (tuple(sample.getActiveUnit()), p, x, q) )
+            print("{} -> {} -> {} -> {}".format(tuple(sample.getActiveUnit()), p, x, q))
 
         # check if pre-processed data has the right dimension
         if len(self.__stats_preprocessor) > 0:
             val = next(iter(self.__stats_preprocessor.values()))
             if type(val) != type(q):
-                raise TypeError('The pre-processor has changed since',
+                raise TypeError('The pre-processor has changed since '
                                 'the last run')
             try:
                 a, b = len(val), len(q)
@@ -203,7 +209,7 @@ class UQSetting(object):
                 a, b = 0, 0
 
             if a != b:
-                raise TypeError('The pre-processor has changed since',
+                raise TypeError('The pre-processor has changed since '
                                 'the last run')
 
         if p not in self.__stats_preprocessor:
@@ -238,7 +244,7 @@ class UQSetting(object):
             # performed with the current parameter set
             if q not in self.__stats_simulation:
                 if self._verbose:
-                    print( "Run simulation..." )
+                    print("Run simulation...")
 
                 try:
                     t0 = self.getStartTime()
@@ -250,18 +256,19 @@ class UQSetting(object):
                                    **kws)
 
                     self.__stats_simulation[q] = A
-                except:
+                except Exception as e:
+                    print("{}".format(e))
                     raise
             else:
                 A = self.__stats_simulation[q]
                 if self._verbose:
-                    print( "Restore simulation result..." )
+                    print("Restore simulation result...")
         else:
             raise Exception('Simulation is missing')
 
         if not len(self.__stats_preprocessor) == len(self.__stats_simulation):
-            print(( q, len(self.__stats_preprocessor), \
-                            len(self.__stats_simulation)))
+            print(q, len(self.__stats_preprocessor),
+                  len(self.__stats_simulation))
             # import ipdb; ipdb.set_trace()
             # assert len(self.__stats_preprocessor) == len(self.__stats_simulation)
 
@@ -282,7 +289,7 @@ class UQSetting(object):
             # performed with the current parameter set
             if q not in self.__stats_postprocessor:
                 if self._verbose:
-                    print( "Apply post processing..." )
+                    print("Apply post processing...")
                 try:
                     t0 = self.getStartTime()
                     tn = self.getEndTime()
@@ -297,17 +304,18 @@ class UQSetting(object):
                 B = self.__stats_postprocessor[q]
 
                 if self._verbose:
-                    print( "Restore postprocessing data" )
+                    print("Restore postprocessing data")
         else:
             B = A
             if self._verbose:
-                print( "No postprocessor defined" )
+                print("No postprocessor defined")
 
         # check if post-processed data has the right dimension
         if len(self.__stats_postprocessor) > 0:
             val = next(iter(self.__stats_postprocessor.values()))
             if type(val) != type(B):
-                raise TypeError('The post-processor has changed since the last run')
+                raise TypeError(
+                    'The post-processor has changed since the last run')
 
         if q not in self.__stats_postprocessor:
             # store result
@@ -321,10 +329,10 @@ class UQSetting(object):
             filename = self.getFilename()
         if not filename:
             if self._verbose:
-                print( "Filename not set, memento not written." )
+                print("Filename not set, memento not written.")
             return
         if self._verbose:
-            print( "Write memento to file..." )
+            print("Write memento to file...")
         m = self.createMemento()
         UQSettingFormatter().serializeToFile(m, filename)
 
@@ -335,7 +343,8 @@ class UQSetting(object):
         acc = []
         self.__stats_simulation = {}
         for i, (_, q) in enumerate(self.__stats_preprocessor.items()):
-            print( "run simulation %i/%i" % (i + 1, len(list(self.__stats_preprocessor.items()))) )
+            print("run simulation %i/%i" %
+                  (i + 1, len(list(self.__stats_preprocessor.items()))))
             ans = self.__eval(q)
         return acc
 
@@ -346,7 +355,8 @@ class UQSetting(object):
         acc = []
         self.__stats_postprocessor = {}
         for i, (q, A) in enumerate(self.__stats_simulation.items()):
-            print( "run postprocessing %i/%i" % (i + 1, len(list(self.__stats_simulation.items()))) )
+            print("run postprocessing %i/%i" %
+                  (i + 1, len(list(self.__stats_simulation.items()))))
             self.__postprocessing(A, q)
             # if len(ans['time']) == 0:
             #     # invalid setting remove it
@@ -387,21 +397,23 @@ class UQSetting(object):
             return
 
         # split into smaller chunks
-        jobsize = float(self.expectedsamplecount) / float(self.parallelprocesses)
+        jobsize = float(self.expectedsamplecount) / \
+            float(self.parallelprocesses)
         if jobsize < 1:
             jobsize = 1.0
         if len(samples) > jobsize:
             njobs = ceil(len(samples) / jobsize)  # round up
             nsamples = int(ceil(len(samples) / njobs))
             njobs = int(njobs)
-            print(( "jobconfig:", njobs, jobsize, nsamples, len(samples) ))
+            print("jobconfig:", njobs, jobsize, nsamples, len(samples))
 
             # split into enough chunks to be below jobsize
             for i in range(0, njobs - 1):
                 if (nsamples * (i + 1)) >= len(samples):
-                    print(( i, "are enough" ))
+                    print(i, "are enough")
                     break
-                print(( "job", nsamples * i, len(samples[nsamples * i:nsamples * (i + 1)]) ))
+                print("job", nsamples * i,
+                      len(samples[nsamples * i:nsamples * (i + 1)]))
                 self.runSamples_dist(samples[nsamples * i:nsamples * (i + 1)],
                                      starti=nsamples * (njobs - 1), *args, **kws)
             self.runSamples_dist(samples[nsamples * (njobs - 1):],
@@ -431,14 +443,15 @@ class UQSetting(object):
 
                         # del self.children[pid]
                         children_to_remove.append(pid)
-                        print( "child finished, pid: %d" % (pid) )
+                        print("child finished, pid: %d" % (pid))
                     else:
                         starti, f, host = self.children[pid]
 
                         if host != '':
                             remote.free_host(host)
 
-                        print( "WARNING: child %d crashed, File %s, starting from index %d on %s" % (pid, f, starti, host) )
+                        print("WARNING: child %d crashed, File %s, starting from index %d on %s" % (
+                            pid, f, starti, host))
                         # del self.children[pid]
                         children_to_remove.append(pid)
             # remove the collected children
@@ -451,17 +464,19 @@ class UQSetting(object):
         # choose unique working directory on host
         cmd = ["ssh", host,
                "python2 -c 'from pysgpp.extensions.datadriven.uq.uq_setting.choose_working_dir import choose_working_directory; choose_working_directory(\"%s\")'"
-               % remote.hosts[host]['scratch'] ]
+               % remote.hosts[host]['scratch']]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         p.wait()
         scratch_path = p.stdout.next().strip()
 
-        filename = self.getFilename().replace(".gz", "." + str(self.__filesuffix) + ".gz")
+        filename = self.getFilename().replace(
+            ".gz", "." + str(self.__filesuffix) + ".gz")
         res = os.fork()
 
         if res == 0:
             # in the child, set a new file and do work
-            remote.do_dist_run(host, self, filename, samples, starti, scratch_path, self.__filesuffix)
+            remote.do_dist_run(host, self, filename, samples,
+                               starti, scratch_path, self.__filesuffix)
         elif res > 0:
             # in the parent, clean up and return
             self.children[res] = (starti, filename, host)
@@ -469,13 +484,12 @@ class UQSetting(object):
             self.__filesuffix = self.__filesuffix + 1
             return
         else:
-            print(( "Error while forking:", starti ))
+            print("Error while forking:", starti)
 
 #    def computeResultsOfChild(self, pid):
 #        """
 #        If a child returned, do organization.
 #        """
-
 
     def waitForResults(self):
         """
@@ -486,7 +500,7 @@ class UQSetting(object):
         self.writeToFile()
 
         while len(self.children) > 0:
-            print( "Now waiting for child to return..." )
+            print("Now waiting for child to return...")
             pid, res = os.wait()
             if res == 0:
                 self.files.append(self.children[pid][1])
@@ -495,14 +509,15 @@ class UQSetting(object):
                     remote.free_host(self.children[pid][2])
 
                 del self.children[pid]
-                print( "child finished, %d remaining" % len(self.children) )
+                print("child finished, %d remaining" % len(self.children))
             else:
                 starti, f, host = self.children[pid]
 
                 if host != '':
                     remote.free_host(host)
 
-                print( "WARNING: child %d crashed, File %s, starting from index %d on %s" % (pid, f, starti, host) )
+                print("WARNING: child %d crashed, File %s, starting from index %d on %s" % (
+                    pid, f, starti, host))
                 del self.children[pid]
 
     def loadResults(self):
@@ -522,7 +537,7 @@ class UQSetting(object):
         pwd = wd.split('/')
         pwd[2] = remote.username
         pwd = "/".join(pwd)
-        print( "scp helium:%s %s" % (os.path.join(pwd, filename), wd) )
+        print("scp helium:%s %s" % (os.path.join(pwd, filename), wd))
         subprocess.call("scp helium:%s %s" % (os.path.join(pwd, filename), wd),
                         shell=True)
 
@@ -538,15 +553,16 @@ class UQSetting(object):
         cnt = 0
         for i, sample in enumerate(samples):
             if self._verbose:
-                print( "-" * 60 )
-                print( "Run: %i/%i (%i)" % (i + 1, len(samples), self.getSize()) )
+                print("-" * 60)
+                print("Run: %i/%i (%i)" %
+                      (i + 1, len(samples), self.getSize()))
 
             ret = self.run(sample, writeToFile=self.getSaveAfterEachRun(cnt),
                            *args, **kws)
 
             # check if run was successful
             if ret == 1:
-                print( "Warning: invalid sample %s" % sample )
+                print("Run with {} was not successful. Continue.".format(sample))
             else:
                 cnt += 1
 
@@ -554,7 +570,7 @@ class UQSetting(object):
 #                 sys.out.flush()
 
         if self._verbose:
-            print( "-" * 60 )
+            print("-" * 60)
 
     def run(self, sample, writeToFile=False, *args, **kws):
         """
@@ -568,33 +584,33 @@ class UQSetting(object):
         """
         try:
             n1 = len(self.getSimulationStats())
-    
+
             # pre processing
             q = self.__preprocessing(sample, *args, **kws)
-    
+
             # do simulation run
             A = self.__eval(q, *args, **kws)
-    
+
             n2 = len(self.getSimulationStats())
-    
+
             # serialize the UQSetting to file. As this is the expensive
             # part, this step is important if there is any error in the post
             # processing part
             if n2 > n1 and writeToFile:
-                self .writeToFile()
-    
+                self.writeToFile()
+
             n1 = len(self.getPostprocessorStats())
-    
+
             self.__postprocessing(A, q, *args, **kws)
-    
+
             n2 = len(self.getPostprocessorStats())
             # serialize once more after the post processing has been done
             if n2 > n1 and writeToFile:
                 self.writeToFile()
-    
+
             return 0
         except Exception as exception:
-            print( str(exception) )
+            print(str(exception))
             return 1
 
     def sanityCheck(self):
@@ -605,13 +621,13 @@ class UQSetting(object):
         for p, val in list(self.__stats_preprocessor.items()):
             if val not in self.__stats_preprocessor_reverse:
                 ans += 1
-                print( "pre %s" % (p,) )
+                print("pre %s" % (p,))
             if val not in self.__stats_simulation:
                 ans += 1
-                print( "sim %s" % (p,) )
+                print("sim %s" % (p,))
             if val not in self.__stats_postprocessor:
                 ans += 1
-                print( "post %s" % (p,) )
+                print("post %s" % (p,))
         return ans
 
     def split(self, n=500):
@@ -671,7 +687,7 @@ class UQSetting(object):
                 i += 1
             return qois
         else:
-            return []
+            return ['_']
 
     def getResult(self, sample, ts=[0], qoi='_'):
         """
@@ -684,7 +700,8 @@ class UQSetting(object):
         p = tuple(sample.getExpandedUnit())
 
         if p not in self.__stats_preprocessor:
-            raise AttributeError('there are no results available for %s' % (p,))
+            raise AttributeError(
+                'there are no results available for %s' % (p,))
 
         q = self.__stats_preprocessor[p]
 
@@ -705,7 +722,7 @@ class UQSetting(object):
         if len(results) != len(stats_ts) and len(results) != len(ts):
             raise AttributeError('number of simulation runs (%i) differ from \
                                   number of time steps (%i) for %s' %
-                                  (len(results), len(stats_ts), q))
+                                 (len(results), len(stats_ts), q))
 
         # make sure that there are results
         if len(stats_ts) == 0:
@@ -798,7 +815,7 @@ class UQSetting(object):
                 np.all([len(self.__dictResults[keyResults][t]) == self.getSize()
                         for t in ts]):
             return self.__dictResults[keyResults]
-            
+
         if qoi not in self.getAvailableQoI():
             raise AttributeError(('the quantity of interest "%s" does not ' +
                                   'exist. There are "%s" available.') %
@@ -816,8 +833,8 @@ class UQSetting(object):
                 ps[i] = self.__stats_samples[p]
 
         if self._verbose:
-            print( "loading results %i x %i = %i" % \
-                (len(ts), len(ps), len(ts) * len(ps)))
+            print("loading results %i x %i = %i" %
+                  (len(ts), len(ps), len(ts) * len(ps)))
 
         B = {}
         # init B
@@ -827,24 +844,24 @@ class UQSetting(object):
         # run over all parameters
         for k, p in enumerate(ps):
             if self._verbose:
-                print(( " %i/%i \r" % (k + 1, len(ps)), ))
+                print(" %i/%i \r" % (k + 1, len(ps)), )
 
             res = self.getResult(p, ts, qoi)
-            
+
             # select the key
             if sampleType == UQSampleType.PREPROCESSED:
                 key = self.__stats_preprocessor[tuple(p.getExpandedUnit())]
             else:
                 # sampleType == UQSampleType.RAW
                 key = p
-            
+
             if res is not None:
                 # run over all time steps
                 for i, t in enumerate(ts):
                     B[t][key] = res[i]
 
         if self._verbose:
-            print( )
+            print()
 
         # store result
         self.__dictResults[keyResults] = B
@@ -873,13 +890,14 @@ class UQSetting(object):
             # select the key
             sample = self.__stats_samples[p]
             if sampleType == UQSampleType.PREPROCESSED:
-                key = self.__stats_preprocessor[tuple(self.__stats_samples[p].getExpandedUnit())]
+                key = self.__stats_preprocessor[tuple(
+                    self.__stats_samples[p].getExpandedUnit())]
             else:
                 # sampleType == UQSampleType.RAW
                 key = p
 
             ans[key] = value[qoi]
-        
+
         return {0: ans}
 
     def getSamplesStats(self):
@@ -1212,7 +1230,6 @@ class UQSetting(object):
 
         #         return stats_preprocessor, stats_preprocessor_reversed
 
-
         #     for i, (p1, p2) in enumerate(zip(listOldParams, listNewParams)):
         #         blub = False
         #         if p1.isUncertain() and not p2.isUncertain():
@@ -1232,6 +1249,7 @@ class UQSetting(object):
     # -----------------------------------------------------------------
     # UQSetting File formatter
     # -----------------------------------------------------------------
+
     def setMemento(self, memento):
         """
         Restores the state which is saved in the given memento
@@ -1457,11 +1475,12 @@ class UQSetting(object):
             spec.setReachesSteadyState(jsonObject[key])
 
         if len(setting.getPreprocessorStats()) != len(setting.getSimulationStats()):
-            print( 'Something went terribly wrong...' )
+            print('Something went terribly wrong...')
             # import ipdb; ipdb.set_trace()
 
         # sanity check
-        assert len(setting.getPreprocessorStats()) == len(setting.getSimulationStats())
+        assert len(setting.getPreprocessorStats()) == len(
+            setting.getSimulationStats())
 
         return setting
 
@@ -1536,7 +1555,8 @@ class UQSetting(object):
         add samples object to the UQ setting if they are missing
         """
         for i, (p, _) in enumerate(self.__stats_preprocessor.items()):
-            self.__stats_samples[p] = Sample(params, p, dtype=SampleType.EXPANDEDUNIT)
+            self.__stats_samples[p] = Sample(
+                params, p, dtype=SampleType.EXPANDEDUNIT)
 
     def convert(self, params):
         # convert to new UQSetting
@@ -1547,7 +1567,8 @@ class UQSetting(object):
         for i, sample in enumerate(self.__stats_samples.values()):
             if params.getStochasticDim() != len(sample.getActiveUnit()):
                 if i == 0:
-                    warnings.warn("stochastic dimension changed -> applying it to the samples")
+                    warnings.warn(
+                        "stochastic dimension changed -> applying it to the samples")
                 # if the stochastic dimensionality has changed, let the samples know
                 newSample = Sample(params, sample.getExpandedUnit(),
                                    SampleType.EXPANDEDUNIT)
@@ -1561,7 +1582,8 @@ class UQSetting(object):
                 self.__stats_samples[p] = sample
                 found = self.findEquivalent(sample, self.__stats_preprocessor)
                 if not found:
-                    raise AttributeError('can not find any results with respect to %s' % (p,))
+                    raise AttributeError(
+                        'can not find any results with respect to %s' % (p,))
 
     def cleanUp(self):
         """
@@ -1602,7 +1624,8 @@ class UQSetting(object):
             p_new[2] = p_new[3]
             p_new[3] = hx
             sample_new = Sample(params, p_new, dtype=SampleType.EXPANDEDUNIT)
-            assert np.all(sample_old.getActiveUnit() == sample_new.getActiveUnit())
+            assert np.all(sample_old.getActiveUnit() ==
+                          sample_new.getActiveUnit())
 
             # load stats of old sample
             p_old = tuple(sample_old.getExpandedUnit())

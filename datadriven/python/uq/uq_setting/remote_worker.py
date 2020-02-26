@@ -19,24 +19,24 @@ username = "franzefn"
 
 # hostname: number of workers
 hosts = {
-#          'localhost': {'cores': 4,
-#                        'free_cores': 2,
-#                        'scratch': '/data2/scratch/Fabian/localhost'},
-#         'helium': {'cores': 36,  # actually 42 cores, but I don't use all of them
-#                    'free_cores' : 4,
-#                    'scratch': '/data2/scratch/%s/helium' % username},
-         'kepler': {'cores': 24,
-                    'free_cores' : 24,
-                    'scratch': '/scratch/sgs/%s' % username}
-         #'vgpu1':  {'cores': 12,
-         #           'free_cores' : 12,
-         #           'scratch': '/home/%s/data2/scratch/%s/vgpu1' % (username, username)}
-         # 'vgpu2':  12,
-         # 'pcsgs05': 3,
-         # 'pcsgs02': 4,
-         # 'pcsgs03': 2,
-         # 'pcsgs04': 4,
-         }
+    #          'localhost': {'cores': 4,
+    #                        'free_cores': 2,
+    #                        'scratch': '/data2/scratch/Fabian/localhost'},
+    #         'helium': {'cores': 36,  # actually 42 cores, but I don't use all of them
+    #                    'free_cores' : 4,
+    #                    'scratch': '/data2/scratch/%s/helium' % username},
+    'kepler': {'cores': 24,
+               'free_cores': 24,
+               'scratch': '/scratch/sgs/%s' % username}
+    # 'vgpu1':  {'cores': 12,
+    #           'free_cores' : 12,
+    #           'scratch': '/home/%s/data2/scratch/%s/vgpu1' % (username, username)}
+    # 'vgpu2':  12,
+    # 'pcsgs05': 3,
+    # 'pcsgs02': 4,
+    # 'pcsgs03': 2,
+    # 'pcsgs04': 4,
+}
 
 
 def choose_host():
@@ -44,7 +44,7 @@ def choose_host():
     selects a host randomly. Every host is replicated
     with respect to the number of cores it has.
     """
-    
+
     """
     allslots = []
     for h, props in hosts.iteritems():
@@ -77,7 +77,7 @@ def choose_host():
 
 def free_host(host):
     # probably do some load balancing here.
-    #pass
+    # pass
     # hosts[host] = hosts[host] + 1
     hosts[host]['free_cores'] = hosts[host]['free_cores'] + 1
 
@@ -101,11 +101,11 @@ def do_dist_run(host, uqsetting, outfile, samplelist, starti, scratch_path, samp
 
     infile = repr(uqsetting.getFilename())
     out = repr(outfile)
-    
+
     hostname = repr(host)
-    
+
     scratch = repr(scratch_path)
-    
+
     sam_no = repr(sample_number)
 
     # the username is different, so the path has to be modified
@@ -142,11 +142,11 @@ def do_dist_run(host, uqsetting, outfile, samplelist, starti, scratch_path, samp
 
     # now connect per ssh and run the code on host
     # -> the method dist_main is called
-    print( "=====> new run on %s" % host )
-    print( "It will be executed: %s" % data )
+    print("=====> new run on %s" % host)
+    print("It will be executed: %s" % data)
 
     # debugging
-    #pdb.set_trace()
+    # pdb.set_trace()
 
     os.execlp("ssh", "ssh", host, "python2 -c '%s'" % data)
 
@@ -164,7 +164,7 @@ def dist_main(pwd, setup, uq_in, uq_out, samples, starti, host, scratch_path, sa
     @param starti:
     """
     os.chdir(pwd)
-    print(( "Worker ", sample_number, " in %s" % pwd ))
+    print("Worker ", sample_number, " in %s" % pwd)
 
     # Parses the list of sample representations to a list of "real" samples
     # print( "=====> samplelist with strings: ", samples[0]  # testing )
@@ -179,7 +179,7 @@ def dist_main(pwd, setup, uq_in, uq_out, samples, starti, host, scratch_path, sa
 
     # execute setup command -> build uqSetting and saves it
     # to the environment specified by var
-    exec( setup, var )
+    exec(setup, var)
     uq = var['uq']
 
     uq.setFilename(uq_out)
@@ -195,4 +195,4 @@ def dist_main(pwd, setup, uq_in, uq_out, samples, starti, host, scratch_path, sa
     uq.writeToFile()
 
     # testing
-    print( "=====> Worker %d finished." % os.getpid() )
+    print("=====> Worker %d finished." % os.getpid())

@@ -48,9 +48,9 @@ class UQSettingFormatter(GzipSerializer):
 
         Return The UQSetting object
         """
-        # text = GzipSerializer.deserialize(self, serializationStream)
+        text = GzipSerializer.deserialize(self, serializationStream)
         # jsonObject = json.JsonReader().read(text)
-        jsonObject = json.load(serializationStream, encoding='utf8')
+        jsonObject = json.loads(text, encoding='utf8')
         return jsonObject
 
     def deserializeFromFile(self, filename):
@@ -63,8 +63,6 @@ class UQSettingFormatter(GzipSerializer):
 
         Return The UQSetting memento object
         """
-        if not isinstance(filename, bytes):
-            raise AttributeError("Filename as destination expected")
         serializationStream = self.gzOpen(filename, "r")
         try:
             memento = self.deserialize(serializationStream)
@@ -86,7 +84,7 @@ class UQSettingFormatter(GzipSerializer):
         """
         # text = json_manual.JsonWriter().write(memento)
         text = json.dumps(memento, indent=None)
-        serializationStream.write(text)
+        serializationStream.write(text.encode('utf-8'))
 
     def serializeToFile(self, memento, filename):
         """
@@ -115,5 +113,3 @@ class UQSettingFormatter(GzipSerializer):
         Return String representing the UQSetting memento
         """
         return json.dumps(memento, indent=4)
-
-

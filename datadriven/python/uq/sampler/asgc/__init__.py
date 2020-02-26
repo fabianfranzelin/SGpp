@@ -16,4 +16,3 @@ __author__ = "Fabian Franzelin, fabian.franzelin@ipvs.uni-stuttgart.de"
 
 from pysgpp.extensions.datadriven.uq.sampler.asgc.ASGCSampler import ASGCSampler
 from pysgpp.extensions.datadriven.uq.sampler.asgc.ASGCSamplerBuilder import ASGCSamplerBuilder
-from pysgpp.extensions.datadriven.uq.refinement.ASGCSamplerFormatter import ASGCSamplerFormatter

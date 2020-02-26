@@ -94,7 +94,8 @@ class SimulationLearner(Learner):
                     p = DataVector(sample.getActiveUnit())
                     mydata.setRow(i, p)
                     sol[i] = float(res)
-                ans[dtype][t] = DataContainer(points=mydata, values=sol, name=name)
+                ans[dtype][t] = DataContainer(
+                    points=mydata, values=sol, name=name)
         return ans
 
     # @profile
@@ -143,7 +144,8 @@ class SimulationLearner(Learner):
         # test dataContainerDict container
         if testUQSetting is not None:
             dataContainerDict = testUQSetting.getTimeDependentResults(toi, qoi)
-            dataContainerDict = self.__prepareDataContainer(dataContainerDict, 'test')
+            dataContainerDict = self.__prepareDataContainer(
+                dataContainerDict, 'test')
             for dtype, values in list(dataContainerDict.items()):
                 for t, newDataContainer in list(values.items()):
                     self.dataContainer[dtype][t] = \
@@ -154,10 +156,10 @@ class SimulationLearner(Learner):
         # learn data
         for dtype, values in list(self.dataContainer.items()):
             knowledge = {}
-            print( KnowledgeTypes.toString(dtype) )
+            print(KnowledgeTypes.toString(dtype))
             # do the learning
             for t, dataContainer in list(values.items()):
-                print(( "t = %g, " % t, ))
+                print("t = %g, " % t, )
                 if dataContainer is not None:
                     learner = self._learners[t]
                     # learn data, if there is any available
@@ -167,7 +169,7 @@ class SimulationLearner(Learner):
 
                     # prepare the answer
                     knowledge[t] = copyGrid(learner.grid), DataVector(alpha)
-            print( )
+            print()
             # update results
             if len(knowledge) > 0:
                 self.updateResults(knowledge, dtype)
@@ -178,7 +180,7 @@ class SimulationLearner(Learner):
             knowledge = {}
             # do the learning
             for t, dataContainer in list(values.items()):
-                print(( "t = %g, " % t, ))
+                print("t = %g, " % t, )
                 if dataContainer is not None:
                     learner = self._learners[t]
                     # learn data, if there is any available
@@ -188,7 +190,7 @@ class SimulationLearner(Learner):
 
                     # prepare the answer
                     knowledge[t] = copyGrid(learner.grid), DataVector(alpha)
-            print( )
+            print()
             # update results
             if len(knowledge) > 0:
                 self.updateResults(knowledge, dtype)
@@ -224,13 +226,15 @@ class SimulationLearner(Learner):
             # store accuracies of the learning process
             self.trainAccuracy[dtype][t].append(learner.trainAccuracy[k])
             self.trainCount[dtype][t].append(learner.trainCount[k])
-            self.trainingOverall[dtype][t].append(np.mean(self.trainAccuracy[dtype][t]))
+            self.trainingOverall[dtype][t].append(
+                np.mean(self.trainAccuracy[dtype][t]))
 
             # check if there are testing results available
             if len(learner.testAccuracy) == len(learner.trainAccuracy):
                 self.testAccuracy[dtype][t].append(learner.testAccuracy[k])
                 self.testCount[dtype][t].append(learner.testCount[k])
-                self.testingOverall[dtype][t].append(np.mean(self.testAccuracy[dtype][t]))
+                self.testingOverall[dtype][t].append(
+                    np.mean(self.testAccuracy[dtype][t]))
 
             # update knowledege
             self.knowledge.update(grid, alpha, self.getQoI(),
@@ -293,14 +297,14 @@ class SimulationLearner(Learner):
 
         # print some information
         if self._verbose:
-            print( "iteration: %i" % self.iteration )
-            print( "old grid size: %i" % oldGridSize )
-            print( "old AS size: %i" % oldAdmissibleSetSize )
-            print( "new collocation nodes: %i" % len(newCollocationNodes) )
-            print(( "new grid size:", self.getGrid().getSize() ))
-            print( "new AS size: %i" % self.getRefinement()\
-                                          .getAdmissibleSet()\
-                                          .getSize())
+            print("iteration: %i" % self.iteration)
+            print("old grid size: %i" % oldGridSize)
+            print("old AS size: %i" % oldAdmissibleSetSize)
+            print("new collocation nodes: %i" % len(newCollocationNodes))
+            print("new grid size:", self.getGrid().getSize())
+            print("new AS size: %i" % self.getRefinement()
+                  .getAdmissibleSet()
+                  .getSize())
 
 #         fig = plotGrid(self.__grid, self.__knowledge.getAlpha(self.getQoI()),
 #                        self.getRefinement().getAdmissibleSetCreator()
@@ -311,7 +315,8 @@ class SimulationLearner(Learner):
         # parse them to a numpy array
         gs = self.grid.getStorage()
         p = DataVector(gs.getDimension())
-        ans = np.ndarray([len(newCollocationNodes), gs.getDimension()], dtype='float')
+        ans = np.ndarray(
+            [len(newCollocationNodes), gs.getDimension()], dtype='float')
         for i, gp in enumerate(newCollocationNodes):
             gs.getCoordinates(gp, p)
             ans[i, :] = p.array()

@@ -13,17 +13,20 @@
 @version  0.1
 
 """
-from pysgpp import PolynomialChaosExpansion, \
-    AbstractInfiniteFunctionBasis1DVector, \
-    OrthogonalBasisFunctionsCollection, \
-    WeightFunctionsCollection, \
-    singleFunc, \
-    ProbabilityDensityFunction1DConfiguration, \
-    ProbabilityDensityFunctionParameters, \
-    ProbabilityDensityFunction1D, \
-    ProbabilityDensityFunctionType_BOUNDED_LOGNORMAL, \
-    ProbabilityDensityFunctionType_BETA, \
-    ProbabilityDensityFunctionType_UNIFORM
+try:
+    from pysgpp import PolynomialChaosExpansion, \
+        AbstractInfiniteFunctionBasis1DVector, \
+        OrthogonalBasisFunctionsCollection, \
+        WeightFunctionsCollection, \
+        singleFunc, \
+        ProbabilityDensityFunction1DConfiguration, \
+        ProbabilityDensityFunctionParameters, \
+        ProbabilityDensityFunction1D, \
+        ProbabilityDensityFunctionType_BOUNDED_LOGNORMAL, \
+        ProbabilityDensityFunctionType_BETA, \
+        ProbabilityDensityFunctionType_UNIFORM
+except Exception as _:
+    pass
 
 from pysgpp.extensions.datadriven.uq.dists import J, Beta, Lognormal, TLognormal, Uniform
 from pysgpp.extensions.datadriven.uq.transformation import (JointTransformation,
@@ -213,7 +216,8 @@ class ParameterSet(object):
                 if orthogPoly is not None:
                     tensorBasis.push_back(orthogPoly)
                 else:
-                    raise AttributeError("the distributions are not part of the Wiener-Askey scheme")
+                    raise AttributeError(
+                        "the distributions are not part of the Wiener-Askey scheme")
 
         return tensorBasis
 
@@ -330,7 +334,8 @@ class ParameterSet(object):
         Extract just the active parts of the parameter tuple
         """
         if len(p) != self.__dim:
-            raise AttributeError('tuple "%s" has to have size %i' % (p, self.__dim))
+            raise AttributeError(
+                'tuple "%s" has to have size %i' % (p, self.__dim))
 
         ans = [0] * self.getStochasticDim()
         k = accLevel = 0
@@ -477,12 +482,15 @@ class ParameterSet(object):
                         margDistList.append(margDist)
                         # update transformations
                         if isinstance(innertrans[idim], RosenblattTransformation):
-                            margTransformations.append(RosenblattTransformation(margDist))
+                            margTransformations.append(
+                                RosenblattTransformation(margDist))
                         else:
                             a, b = margDist.getBounds()
-                            margTransformations.append(LinearTransformation(a, b))
+                            margTransformations.append(
+                                LinearTransformation(a, b))
 
-            assert len(margDistList) == len(margTransformations) == activeParams.getDim()
+            assert len(margDistList) == len(
+                margTransformations) == activeParams.getDim()
 
             # update the parameter setting
             from pysgpp.extensions.datadriven.uq.parameters.ParameterBuilder import ParameterBuilder

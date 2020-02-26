@@ -20,6 +20,7 @@ from pysgpp.pysgpp_swig import BandwidthOptimizationType_SILVERMANSRULE
 from pysgpp.extensions.datadriven.uq.tools import writeDataARFF
 import numpy as np
 
+
 class AnalysisHash(object):
 
     def __init__(self):
@@ -88,9 +89,9 @@ class Analysis(object):
             for i, t in enumerate(ts):
                 # compute mean
                 if self._verbose:
-                    print( "-" * 80 )
-                    print(( "Estimate E[t = %g] (%i/%i), iteration = %i/%i:" % \
-                        (t, i + 1, len(ts), iteration + 1, len(iterations)),))
+                    print("-" * 80)
+                    print("Estimate E[t = %g] (%i/%i), iteration = %i/%i:" %
+                          (t, i + 1, len(ts), iteration + 1, len(iterations)), end=' ')
 
                 if not self._moments.hasMoment(iteration, self._qoi, t, 'mean'):
                     moment = self.computeMean(iteration, self._qoi, t)
@@ -101,7 +102,7 @@ class Analysis(object):
                                                      t, 'mean')
 
                 if self._verbose:
-                    print( "value = %g (err=%g)" % (moment["value"], 
+                    print("value = %g (err=%g)" % (moment["value"],
                                                    moment["err"]))
 
                 if len(ts) > 1:
@@ -138,9 +139,9 @@ class Analysis(object):
             for i, t in enumerate(ts):
                 # compute variance
                 if self._verbose:
-                    print( "-" * 80 )
-                    print(( "Estimate V[t = %g] (%i/%i), iteration = %i/%i:" % \
-                        (t, i + 1, len(ts), iteration + 1, len(iterations))), end=' ')
+                    print("-" * 80)
+                    print("Estimate V[t = %g] (%i/%i), iteration = %i/%i:" %
+                          (t, i + 1, len(ts), iteration + 1, len(iterations)), end=' ')
 
                 if not self._moments.hasMoment(iteration, self._qoi, t, 'var'):
                     moment = self.computeVar(iteration, self._qoi, t)
@@ -151,7 +152,7 @@ class Analysis(object):
                                                      t, 'var')
 
                 if self._verbose:
-                    print( "value = %g (err=%g)" % (moment["value"], 
+                    print("value = %g (err=%g)" % (moment["value"],
                                                    moment["err"]))
 
                 if len(ts) > 1:
@@ -193,4 +194,5 @@ class Analysis(object):
             bounds[:, 1] = np.max(samples)
             return SGDEdist.byLearnerSGDEConfig(samples, bounds, config=config)
         else:
-            raise AttributeError("density estimation type %s is not known. Select one in [gaussianKDE, sgde]")
+            raise AttributeError(
+                "density estimation type %s is not known. Select one in [gaussianKDE, sgde]")

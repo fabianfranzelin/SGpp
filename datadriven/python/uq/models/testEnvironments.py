@@ -1,5 +1,6 @@
 
 import numpy as np
+import os
 
 from pysgpp.extensions.datadriven.uq.parameters.ParameterBuilder import ParameterBuilder
 from pysgpp.extensions.datadriven.uq.helper import findSetBits, sortPermutations
@@ -10,11 +11,13 @@ from pysgpp.extensions.datadriven.uq.sampler import MCSampler
 from pysgpp.extensions.datadriven.uq.uq_setting.UQBuilder import UQBuilder
 from pysgpp.extensions.datadriven.uq.operations.sparse_grid import hasBorder
 
+
 class TestEnvironmentSG(object):
 
     def buildSetting(self,
                      params,
                      f=None,
+                     postprocessor=None,
                      level=None,
                      gridType=None,
                      grid=None,
@@ -50,7 +53,11 @@ class TestEnvironmentSG(object):
         if uqSetting is not None:
             builder.useUQSetting(uqSetting)
         else:
-            builder.defineUQSetting().withSimulation(f).saveAfterEachRun(saveAfterN)
+            builder.defineUQSetting() \
+                .withSimulation(f) \
+                .withPostprocessor(postprocessor) \
+                .saveAfterEachRun(saveAfterN) \
+                .verbose()
 
         if uqSettingRef is not None and len(uqSettingRef) > 0:
             builder.withTestSet(uqSettingRef)\
@@ -113,7 +120,8 @@ class TestEnvironmentSG(object):
                 elif adaptive == "anchored_mean_squared":
                     refineNodes.withAnchoredMeanSquaredOptRanking()
                 else:
-                    raise AttributeError("unknown ranking method: refinement, %s" % adaptive)
+                    raise AttributeError(
+                        "unknown ranking method: refinement, %s" % adaptive)
             else:
                 addNodes = refinement.addMostPromisingChildren()
                 if adaptive == "weighted":
@@ -121,7 +129,8 @@ class TestEnvironmentSG(object):
                 elif adaptive == "l2":
                     addNodes.withWeightedL2OptimizationRanking()
                 else:
-                    raise AttributeError("unknown ranking method: predictive, %s" % adaptive)
+                    raise AttributeError(
+                        "unknown ranking method: predictive, %s" % adaptive)
 
             if toi is not None:
                 refinement.withAverageWeightening()
@@ -193,15 +202,15 @@ class ProbabilisticSpaceSGpp(object):
 
     def multivariate_normal(self, mu=0, cov=None, a=0, b=1):
             # set distributions of the input parameters
-        mu = np.array([mu] * numDims)
+        mu = np.array([mu] * self.numDims)
         if cov is None:
             # use standard values
-            diag = np.eye(numDims) * 0.005
-            offdiag = np.abs(np.eye(numDims) - 1) * 0.001
+            diag = np.eye(self.numDims) * 0.005
+            offdiag = np.abs(np.eye(self.numDims) - 1) * 0.001
             cov = diag + offdiag
         # estimate the density
         builder = ParameterBuilder()
         up = builder.defineUncertainParameters()
-        names = ", ".join(["x%i" for i in range(numDims)])
+        names = ", ".join(["x%i" for i in range(self.numDims)])
         up.new().isCalled(names).withMultivariateNormalDistribution(mu, cov, 0, 1)
         return builder.andGetResult()

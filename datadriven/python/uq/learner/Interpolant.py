@@ -1,6 +1,6 @@
 from pysgpp.extensions.datadriven.uq.operations import (hierarchize,
-                               evalSGFunctionMulti,
-                               hierarchizeBruteForce)
+                                                        evalSGFunctionMulti,
+                                                        hierarchizeBruteForce)
 from pysgpp import (DataVector, DataMatrix)
 
 from pysgpp.extensions.datadriven.uq.learner.Learner import Learner, LearnerEvents
@@ -31,7 +31,10 @@ class Interpolant(Learner):
 
         # assert that the number of dimensions of the data is the same
         # as the grids
-        assert gs.getDimension() == points.getDim()
+        if gs.getDimension() != points.getDim():
+            print(
+                "WARNING: dimensions of grid point and sample mismatch. Setting to zero.")
+            points = np.zeros(gs.getDimension())
 
         nodalValues = np.ndarray(gs.getSize())
 
@@ -56,14 +59,14 @@ class Interpolant(Learner):
                 # ixs = np.argsort(l)
                 # # nodalValues[i] = np.mean(l[ixs[:n]])
                 nodalValues[i] = 0.0
-                print(( p, nodalValues[i] ))
+                print(p.array(), nodalValues[i])
                 cnt += 1
             else:
                 nodalValues[i] = float(points[x])
 
         if cnt > 0:
-            print( '%i/%i of the grid points have been set to 0' % (cnt, gs.getSize()) )
-            pdb.set_trace()
+            print('%i/%i of the grid points have been set to 0' %
+                  (cnt, gs.getSize()))
 
         # hierarchization
         alpha = hierarchize(self.grid, nodalValues)
@@ -105,9 +108,9 @@ class Interpolant(Learner):
         self.notifyEventControllers(LearnerEvents.LEARNING_COMPLETE)
         return self.alpha
 
-
     def learnDataWithTest(self, dataset=None, *args, **kws):
-        self.notifyEventControllers(LearnerEvents.LEARNING_WITH_TESTING_STARTED)
+        self.notifyEventControllers(
+            LearnerEvents.LEARNING_WITH_TESTING_STARTED)
 
         if dataset is None:
             dataset = self.dataContainer
@@ -121,16 +124,18 @@ class Interpolant(Learner):
         self.updateResults(self.alpha, trainSubset, testSubset,
                            *args, **kws)
         self.iteration += 1
-        self.notifyEventControllers(LearnerEvents.LEARNING_WITH_TESTING_COMPLETE)
+        self.notifyEventControllers(
+            LearnerEvents.LEARNING_WITH_TESTING_COMPLETE)
         return self.alpha
 
     def updateResults(self, alpha, trainSubset, testSubset=None,
                       dtype=KnowledgeTypes.SIMPLE):
         # evaluate MSE of training data set -> should be zero
-        self.trainErrors = self.evalError(trainSubset, alpha)
+        if trainSubset.size > 0:
+            self.trainErrors = self.evalError(trainSubset, alpha)
 
         # store interpolation quality
-        if testSubset:
+        if testSubset and testSubset.size > 0:
             self.testErrors = self.evalError(testSubset, alpha)
 
     def evalError(self, data, alpha):
@@ -142,8 +147,17 @@ class Interpolant(Learner):
         @return: mean squared error
         """
         # check if points are in [0, 1]^d
-        allPoints = data.getPoints().array()
-        allModelValues = data.getValues().array()
+        allPoints_vec = data.getPoints()
+        if allPoints_vec.getNrows() > 0:
+            allPoints = allPoints_vec.array()
+        else:
+            return np.array([np.nan])
+
+        allModelValues_vec = data.getValues()
+        if allModelValues_vec.getSize() > 0:
+            allModelValues = allModelValues_vec.array()
+        else:
+            return np.array([np.nan])
 
         points = np.ndarray((0, data.dim))
         modelValues = np.array([])
@@ -175,7 +189,7 @@ class Interpolant(Learner):
             value = np.mean(self.trainErrors ** 2)
         else:
             value = np.mean(self.testErrors ** 2)
-            
+
         return np.sqrt(value)
 
     def getL1NormError(self, dtype="train"):

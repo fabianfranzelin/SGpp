@@ -1168,9 +1168,9 @@ def solve(trainSamples, gridType, level, lmbd, solver="cvxopt"):
     grid = Grid.createGrid(gridConfig)
     gridStorage = grid.getStorage()
     grid.getGenerator().regular(level)
-    print(("gridStorage:", gridStorage.getSize()))
-    print(("numDims:", numDims))
-    print(("trainSamples.shape[0]:", trainSamples.shape[0]))
+    print("gridStorage:", gridStorage.getSize())
+    print("numDims:", numDims)
+    print("trainSamples.shape[0]:", trainSamples.shape[0])
 
     # ------------------------------------------------------------
     # prepare matrices for least squares
@@ -1273,7 +1273,7 @@ if __name__ == "__main__":
     print("SGDE pos...")
     grid, alpha = solve(trainSamples, args.gridType, args.level, args.lmbd,
                         solver=args.solver)
-    print(("alpha:", alpha))
+    print("alpha:", alpha)
     nodalValues = dehierarchize(grid, alpha)
     # print nodalValues
     print("is positive? %s (min=%f)" % ("Yes" if np.all(nodalValues >= 0) else "Nope",
