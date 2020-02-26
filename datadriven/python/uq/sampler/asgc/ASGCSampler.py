@@ -148,6 +148,11 @@ class ASGCSampler(Sampler):
         for p in newCollocationNodes:
             ans.add(p, dtype=SampleType.ACTIVEUNIT)
 
+        if len(ans) != len(newCollocationNodes):
+            print("nextSamples does not work properly. Please fix")
+
+        assert len(ans) == len(newCollocationNodes)
+
         # join sample sets
         self.samples.combine(ans)
 

@@ -844,9 +844,13 @@ class UQSetting(object):
         # run over all parameters
         for k, p in enumerate(ps):
             if self._verbose:
-                print(" %i/%i \r" % (k + 1, len(ps)), )
+                print("{}/{}: {} ->".format(k + 1, len(ps),
+                                            p.getExpandedUnit()), end=' ')
 
             res = self.getResult(p, ts, qoi)
+
+            if self._verbose:
+                print(res)
 
             # select the key
             if sampleType == UQSampleType.PREPROCESSED:
@@ -1567,8 +1571,7 @@ class UQSetting(object):
         for i, sample in enumerate(self.__stats_samples.values()):
             if params.getStochasticDim() != len(sample.getActiveUnit()):
                 if i == 0:
-                    warnings.warn(
-                        "stochastic dimension changed -> applying it to the samples")
+                    print("stochastic dimension changed -> applying it to the samples")
                 # if the stochastic dimensionality has changed, let the samples know
                 newSample = Sample(params, sample.getExpandedUnit(),
                                    SampleType.EXPANDEDUNIT)

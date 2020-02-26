@@ -1,6 +1,7 @@
 import numpy as np
 from pysgpp.extensions.datadriven.uq import jsonLib as ju
 from copy import copy
+import hashlib
 
 
 class SampleType(object):
@@ -75,6 +76,10 @@ class Samples(object):
             self.removeSample(sample)
 
     def addSample(self, sample):
+        if sample in self._samples:
+            print("Warning: sample {} already present in set of samples.".format(
+                sample.getExpandedUnit()))
+
         self._samples[sample] = sample
 
     def removeSample(self, sample):
@@ -151,10 +156,12 @@ class Samples(object):
         return "SampleSet: nsamples = %i, ndims = %i" % (len(self._samples),
                                                          self._dim)
 
+
 class SamplesIterator(object):
     """
     Iterator class
     """
+
     def __init__(self, samples):
         self.samples = samples
         self.__current = 0
@@ -190,26 +197,34 @@ class Sample(object):
                 # sample contains just active dimensions in [0, 1]^d
                 self.__activeUnit = np.array(sample, dtype='float')
                 self.__activeProb = trans.unitToProbabilistic(sample)
-                self.__expandedUnit = params.expandUnitParameter(self.__activeUnit)
-                self.__expandedProb = params.expandProbabilisticParameter(self.__activeProb)
+                self.__expandedUnit = params.expandUnitParameter(
+                    self.__activeUnit)
+                self.__expandedProb = params.expandProbabilisticParameter(
+                    self.__activeProb)
             elif dtype == SampleType.ACTIVEPROBABILISTIC:
                 # sample contains just active dimensions in \Gamma
                 self.__activeProb = np.array(sample, dtype='float')
                 self.__activeUnit = trans.probabilisticToUnit(sample)
-                self.__expandedUnit = params.expandUnitParameter(self.__activeUnit)
-                self.__expandedProb = params.expandProbabilisticParameter(self.__activeProb)
+                self.__expandedUnit = params.expandUnitParameter(
+                    self.__activeUnit)
+                self.__expandedProb = params.expandProbabilisticParameter(
+                    self.__activeProb)
             elif dtype == SampleType.EXPANDEDUNIT:
                 # sample contains all dimensions in [0, 1]^d
                 self.__expandedUnit = np.array(sample, dtype='float')
                 self.__activeUnit = params.extractActiveTuple(sample)
-                self.__activeProb = trans.unitToProbabilistic(self.__activeUnit)
-                self.__expandedProb = params.expandProbabilisticParameter(self.__activeProb)
+                self.__activeProb = trans.unitToProbabilistic(
+                    self.__activeUnit)
+                self.__expandedProb = params.expandProbabilisticParameter(
+                    self.__activeProb)
             elif dtype == SampleType.EXPANDEDPROBABILISTIC:
                 # sample contains all dimensions in \Gamma
                 self.__expandedProb = np.array(sample, dtype='float')
                 self.__activeProb = params.extractActiveTuple(sample)
-                self.__activeUnit = trans.probabilisticToUnit(self.__activeProb)
-                self.__expandedUnit = params.expandUnitParameter(self.__activeUnit)
+                self.__activeUnit = trans.probabilisticToUnit(
+                    self.__activeProb)
+                self.__expandedUnit = params.expandUnitParameter(
+                    self.__activeUnit)
             else:
                 raise AttributeError('dtype "%s" is not known for a \
                                       Sample' % dtype)
@@ -266,7 +281,7 @@ class Sample(object):
         return str(self.getActiveUnit())
 
     def __hash__(self):
-        return tuple(self.getExpandedUnit()).__hash__()
+        return int(hashlib.sha512(str(tuple(self.getExpandedUnit())).encode('utf-8')).hexdigest(), 16)
 
     def __eq__(self, sample):
         return hash(self) == hash(sample)
@@ -279,7 +294,7 @@ class Sample(object):
         Returns a string that represents the object
         """
         serializationString = '"module" : "' + \
-                              self.__module__ + '",\n'
+            self.__module__ + '",\n'
 
         # serialize
         for attrName in ('_Sample__activeUnit',

@@ -59,7 +59,8 @@ class Interpolant(Learner):
                 # ixs = np.argsort(l)
                 # # nodalValues[i] = np.mean(l[ixs[:n]])
                 nodalValues[i] = 0.0
-                print(p.array(), nodalValues[i])
+                print("Set nodal value to zero: f({}) = {}".format(
+                    p.array(), nodalValues[i]))
                 cnt += 1
             else:
                 nodalValues[i] = float(points[x])
